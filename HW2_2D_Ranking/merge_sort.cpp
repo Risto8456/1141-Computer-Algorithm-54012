@@ -49,29 +49,31 @@ void ranking_production(
     vector<int> &rank, int L, int R) {
 
     int len = R-L+1;
-    if (len < 2) return;
+    if (len < 2) return; // 長度小於 2
+    if (points[L].F == points[R].F) return; // 所有 x 相同
     
-    int mid = L + (len + 1) / 2;  // 偶數長度時取後，為了 len = 2, split < L 狀況
+    int mid = L + (len - 1) / 2;    // 偶數長度取前
     float median_x = points[mid].F; // x 中位數
 
-    int split; // 最後一個 x 小於中位數的索引
+    int split; // 第一個 x 大於中位數的索引, x = [1,1,1,2]
     for (split = L; split <= R; split++) {
-        if (points[split].F >= median_x) break;
+        if (points[split].F > median_x) break;
     }
-    split--;
+    if (split > R) { // 更改邏輯，第一個 x 大於等於中位數的索引, x = [1,2,2,2]
+        for (split = L; split <= R; split++) {
+            if (points[split].F >= median_x) break;
+        }
+    }
 
-    // 所有 x = median_x，直接結束
-    if (split < L) return;
-
-    ranking_production(points, y_idx, rank, L, split);
-    ranking_production(points, y_idx, rank, split+1, R);
+    ranking_production(points, y_idx, rank, L, split-1);
+    ranking_production(points, y_idx, rank, split, R);
 
     // 左右集合，y 座標, idx
     vector<pair<float, int>> L_points, R_points;
-    for (int i = L; i <= split; i++) {
+    for (int i = L; i <= split-1; i++) {
         L_points.push_back(y_idx[i]);
     }
-    for (int i = split+1; i <= R; i++) {
+    for (int i = split; i <= R; i++) {
         R_points.push_back(y_idx[i]);
     }
 
