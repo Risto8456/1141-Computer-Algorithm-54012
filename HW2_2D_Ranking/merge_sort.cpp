@@ -1,4 +1,5 @@
-// time O(n*log^2(n))
+// time O(n*log(n))
+// 使用 merge sort + 保留已排序結果（避免每層都重新排序 y）
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -9,7 +10,7 @@ using namespace std;
 
 void HeapSort(vector<pair<float, float>>&);
 void heapify(vector<pair<float, float>>&, int, int);
-void ranking_production(vector<pair<float, float>>&, vector<int>&, int, int);
+void ranking_production(vector<pair<float, float>>&, vector<pair<float, int>>&, vector<int>&, int, int);
 
 // 堆積排序法
 void HeapSort(vector<pair<float, float>> &points){
@@ -42,7 +43,11 @@ void heapify(vector<pair<float, float>> &points, int n, int i){
     }
 }
 // 排名製作
-void ranking_production(vector<pair<float, float>> &points, vector<int> &rank, int L, int R) {
+void ranking_production(
+    vector<pair<float, float>> &points, 
+    vector<pair<float, int>> &y_idx, 
+    vector<int> &rank, int L, int R) {
+
     int len = R-L+1;
     if (len < 2) return;
     
@@ -58,23 +63,38 @@ void ranking_production(vector<pair<float, float>> &points, vector<int> &rank, i
     // 所有 x = median_x，直接結束
     if (split < L) return;
 
-    ranking_production(points, rank, L, split);
-    ranking_production(points, rank, split+1, R);
+    ranking_production(points, y_idx, rank, L, split);
+    ranking_production(points, y_idx, rank, split+1, R);
 
-    vector<pair<float, float>> L_points, R_points;
     // 左右集合，y 座標, idx
+    vector<pair<float, int>> L_points, R_points;
     for (int i = L; i <= split; i++) {
-        L_points.push_back({points[i].S, i});
+        L_points.push_back(y_idx[i]);
     }
     for (int i = split+1; i <= R; i++) {
-        R_points.push_back({points[i].S, i});
+        R_points.push_back(y_idx[i]);
     }
-    // 根據 y 做升序排序
-    HeapSort(L_points); HeapSort(R_points);
 
-    for (int i = 0, j = 0; j < R_points.size(); j++) {
-        while (i < L_points.size() && L_points[i].F < R_points[j].F) i++;
+    // 製作 rank
+    int i = 0, j = 0;
+    while (i < L_points.size() && j < R_points.size()) {
+        if (L_points[i].F < R_points[j].F) {
+            y_idx[L+i+j] = L_points[i]; // merge
+            i++;
+        } else {
+            y_idx[L+i+j] = R_points[j]; // merge
+            rank[R_points[j].S] += i;
+            j++;
+        }
+    }
+    while (i < L_points.size()) {
+        y_idx[L+i+j] = L_points[i]; // merge
+        i++;
+    }
+    while (j < R_points.size()) {
+        y_idx[L+i+j] = R_points[j]; // merge
         rank[R_points[j].S] += i;
+        j++;
     }
 }
 
@@ -95,14 +115,20 @@ int main() {
     while (cin >> x >> y) {
         points.push_back({x, y});
     }
+    int n = points.size();
 
     // 根據 x 做 HeapSort，升序(最小堆)
     HeapSort(points);
 
+    // merge sort 基底 : y 座標, idx
+    vector<pair<float, int>> y_idx;
+    for (int i = 0; i < n; i++) {
+        y_idx.push_back({points[i].S, i});
+    }
+
     // 各點排名
-    int n = points.size();
     vector<int> rank(n, 0);
-    ranking_production(points, rank, 0, n-1);
+    ranking_production(points, y_idx, rank, 0, n-1);
 
     for (int i = 0; i < n; i++) {
         cout << "x : " << setw(8) << points[i].F << "\t";
