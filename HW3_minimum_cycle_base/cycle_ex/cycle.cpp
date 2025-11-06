@@ -1,46 +1,44 @@
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-int main(int argc,char *argv[])
-{
+int main(int argc,char *argv[]) {
     int i,j;
 
     FILE *fp;
     char newline[10],*tempch=" ";
     int nodenum,edgenum,cost,begin,end;
 
-	fp=fopen("cost239","r");
+	fp=fopen("txt1.txt","r");
 	fgets(newline,10,fp);
 
 	sscanf(newline,"%i %i",&nodenum,&edgenum);
 
-    int A[nodenum][nodenum];//儲存連線的點
+    int A[nodenum][nodenum]; // 儲存連線的點
     for(i=0;i<nodenum;i++)
         for(j=0;j<nodenum;j++)
             A[i][j]=0;
-    while(fgets(newline,10,fp) != NULL)
-	{
+    while(fgets(newline,10,fp) != NULL) {
 	   sscanf(newline,"%i %i %i",&begin,&end,&cost);
 	   A[begin][end]=1;
 	   A[end][begin]=1;
 	}
 	fclose(fp);
 
-            int r,f;
-   /*         for(r=0;r<nodenum;r++)
-               {
-                    for(f=0;f<nodenum;f++)
-                        printf("%d ",A[r][f]);
-                    printf("\n");
-               }printf("\n");
-*/
+    /*
+    int r,f;
+    for(r=0;r<nodenum;r++) {
+        for(f=0;f<nodenum;f++)
+            printf("%d ",A[r][f]);
+        printf("\n");
+    }
+    printf("\n");
+    */
 
-
-    int k,c,pre,no;//第no格
-    int b=0;//有b個temp(多出來的排列組合)
+    int k,c,pre,no;             // 第 no 格
+    int b=0;                    // 有b個temp(多出來的排列組合)
     int s=0,e=nodenum,cycle=0;
     int temp[nodenum];
-    int order[20000][nodenum];//預設值-1
+    int order[20000][nodenum];  // 預設值-1
     int check_re[20000];
     int check_cycle[nodenum];
     for(i=0;i<20000;i++)
@@ -55,8 +53,6 @@ int main(int argc,char *argv[])
 
     for(no=1;no<nodenum;no++)//設定no
     {
-
-
         adde=0;
         s=0;
         for(k=0;k<e;k++)//做e次加長連線(e預設為nodenum)
@@ -121,18 +117,15 @@ int main(int argc,char *argv[])
                                break;
                            }
                        }
-                       if(m!=-1)
-                       {
-                            /*fp=fopen("cycle.txt","w");
- for(j=0;j<=no;j++)
-fprintf("%d->",order[i][j]);
-fprintf("%d",order[i][0]);
-fprintf("\n");
-fclose(fp);*/
-
-
-
-
+                       if(m!=-1) {
+                            /*
+                            fp=fopen("cycle.txt","w");
+                            for(j=0;j<=no;j++)
+                            fprintf("%d->",order[i][j]);
+                            fprintf("%d",order[i][0]);
+                            fprintf("\n");
+                            fclose(fp);
+                            */
                             for(j=0;j<=no;j++)
                                 printf("%d->",order[i][j]);
                             printf("%d",order[i][0]);
