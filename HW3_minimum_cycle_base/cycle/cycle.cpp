@@ -8,7 +8,7 @@ int main(int argc,char *argv[]) {
     char newline[10],*tempch=" ";
     int nodenum,edgenum,cost,begin,end;
 
-	fp=fopen("txt1.txt","r");
+	fp=fopen("cost239","r");
 	fgets(newline,10,fp);
 
 	sscanf(newline,"%i %i",&nodenum,&edgenum);
